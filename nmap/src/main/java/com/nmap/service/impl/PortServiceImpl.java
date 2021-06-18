@@ -50,7 +50,6 @@ public class PortServiceImpl implements PortService {
 		Process process = null;
 		List<Port> openPorts = new ArrayList<Port>();
 		StringBuffer stringBuffer = new StringBuffer();
-		boolean ignoreFirst = false;
 		
 		//Fetch date here to give one date time per request
 		String createdOn = dateUtil.getCurrentDateTimeInUTCStringFormat();
@@ -64,9 +63,6 @@ public class PortServiceImpl implements PortService {
 			while ((line = reader.readLine()) != null) {
 				stringBuffer.append(line + "\n");
 				if (r.matcher(line).find()) {
-						if(!ignoreFirst) {
-							ignoreFirst = true;
-						}else {
 							String[] tempOutput = stringBuffer.toString().split(" ");
 							tempOutput = clean(tempOutput);
 							// TODO: check if the size is three;
@@ -74,7 +70,6 @@ public class PortServiceImpl implements PortService {
 									,hostName.toLowerCase(),createdOn);
 							portRepository.save(p);
 							openPorts.add(p);
-						}
 				}
 				stringBuffer = new StringBuffer();
 			}

@@ -5,8 +5,8 @@ public interface NmapperConstant {
 	//General
 	String UTF8 = "UTF-8";
 	//REGEX
-	String PATTERN_FOR_PORT = "[0-9]*/+[a-z]* *[a-zA-Z]* *[a-zA-Z-]*";	
-	
+	String PATTERN_FOR_PORT = "[0-9]*/+[a-z]* *open *[a-zA-Z-]*";	
+	//"[0-9]*/+[a-z]* *open* *[a-zA-Z-]*";	
 	
 	
 	

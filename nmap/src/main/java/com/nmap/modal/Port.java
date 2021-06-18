@@ -106,6 +106,33 @@ public class Port {
 		return "Port [portNumber=" + portNumber + ", portProtocol=" + portProtocol + ", portStatus=" + portStatus
 				+ ", portSerive=" + portSerive + ", hostname=" + hostname + ", createdOn=" + portInfoCreateOn +"]";
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((portNumber == null) ? 0 : portNumber.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Port other = (Port) obj;
+		if (portNumber == null) {
+			if (other.portNumber != null)
+				return false;
+		} else if (!portNumber.equals(other.portNumber))
+			return false;
+		return true;
+	}
+
+	
 	
 	
 
