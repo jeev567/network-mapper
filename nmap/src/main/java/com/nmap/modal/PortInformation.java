@@ -4,23 +4,38 @@ import java.util.List;
 
 public class PortInformation {
 
-	private List<Port> openPorts;
-
-	public PortInformation(List<Port> openPorts) {
+	private String hostName;
+	private List<Port> latestScannedPorts;
+	private List<List<Port>> historyScannedPort;
+	
+	public PortInformation() {
 		super();
-		this.openPorts = openPorts;
+	}
+	
+	public List<List<Port>> getHistoryScannedPort() {
+		return historyScannedPort;
 	}
 
-	public List<Port> getOpenPorts() {
-		return openPorts;
+	public void setHistoryScannedPort(List<List<Port>> historyScannedPort) {
+		this.historyScannedPort = historyScannedPort;
 	}
 
-	public void setOpenPorts(List<Port> openPorts) {
-		this.openPorts = openPorts;
+	public List<Port> getLatestScannedPorts() {
+		return latestScannedPorts;
 	}
-	
-	
-	
+
+	public void setLatestScannedPorts(List<Port> latestScannedPorts) {
+		this.latestScannedPorts = latestScannedPorts;
+	}
+
+
+	public String getHostName() {
+		return hostName;
+	}
+
+	public void setHostName(String hostName) {
+		this.hostName = hostName;
+	}
 	
 	
 
