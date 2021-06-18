@@ -18,5 +18,10 @@ public class PortInformation {
 	public void setOpenPorts(List<Port> openPorts) {
 		this.openPorts = openPorts;
 	}
+	
+	
+	
+	
+	
 
 }

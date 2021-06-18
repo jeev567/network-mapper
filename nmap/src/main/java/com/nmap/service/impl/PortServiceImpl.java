@@ -10,36 +10,44 @@ import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.nmap.constant.NmapperConstant;
 import com.nmap.data.PortRepo;
 import com.nmap.modal.Port;
 import com.nmap.modal.PortInformation;
 import com.nmap.service.PortService;
+import com.nmap.util.DateUtil;
+import com.nmap.util.NmapperConstant;
 
 @Service
 public class PortServiceImpl implements PortService {
 
 	@Autowired
 	private PortRepo portRepository;
+	
+	@Autowired
+	private DateUtil dateUtil;
 
 	public PortInformation getOpenPortsByHostName(String hostName) {
-		return getAllThePortInformation(NmapperConstant.GET_OPEN_PORT_COMMAND + " " + hostName);
+		return getAllThePortInformation(hostName);
 	}
 
-	private PortInformation getAllThePortInformation(String command) {
-
+	private PortInformation getAllThePortInformation(String hostName) {
+		
 		// Regex usage to figure out open ports from terminal output
 		Pattern r = Pattern.compile(NmapperConstant.PATTERN_FOR_PORT);
 		Process process = null;
 		List<Port> openPorts = new ArrayList<Port>();
 		StringBuffer stringBuffer = new StringBuffer();
 		boolean ignoreFirst = false;
+		String createdOn = dateUtil.getCurrentDateTimeInUTCStringFormat();
 		try {
-			process = Runtime.getRuntime().exec(command);
+			process = Runtime.getRuntime().exec(NmapperConstant.GET_OPEN_PORT_COMMAND + " " + hostName);
 			System.out.println("Please wait ...");
 			BufferedReader reader = new BufferedReader(
 					new InputStreamReader(process.getInputStream(), NmapperConstant.UTF8.toString()));
 			String line = null;
+			
+			
+			
 			while ((line = reader.readLine()) != null) {
 				stringBuffer.append(line + "\n");
 				if (r.matcher(line).find()) {
@@ -50,7 +58,8 @@ public class PortServiceImpl implements PortService {
 							tempOutput = clean(tempOutput);
 							// TODO: check if the size is three;
 							Port p = new Port(tempOutput[0].trim().split("/")[0],tempOutput[0].trim().split("/")[1], tempOutput[1].trim(), tempOutput[2].trim()
-									 );
+									,hostName.toLowerCase(),createdOn);
+							portRepository.save(p);
 							openPorts.add(p);
 						}
 				}
@@ -61,7 +70,7 @@ public class PortServiceImpl implements PortService {
 		}
 		return new PortInformation(openPorts);
 	}
-
+	
 	private String[] clean(String[] tempOutput) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < tempOutput.length; i++) {

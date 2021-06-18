@@ -1,10 +1,10 @@
-package com.nmap.constant;
+package com.nmap.util;
 
 public interface NmapperConstant {
 	
 	//General
 	String UTF8 = "UTF-8";
-	
+	//REGEX
 	String PATTERN_FOR_PORT = "[0-9]*/+[a-z]* *[a-zA-Z]* *[a-zA-Z-]*";	
 	
 	
@@ -12,5 +12,10 @@ public interface NmapperConstant {
 	
 	//NMAP CLI command
 	String GET_OPEN_PORT_COMMAND = "nmap";
+	
+	
+	
+	//DATE UTIL CONSTANTS
+	String DATE_TIME_FORMAT_FOR_SORTING = "yyyy-MM-dd-HH-mm-ss";
 	
 }

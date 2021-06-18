@@ -10,6 +10,7 @@ import javax.persistence.Table;
 @Table(name = "port")
 public class Port {
 
+	String hostname;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -17,17 +18,30 @@ public class Port {
 	String portProtocol;
 	String portStatus;
 	String portSerive;
+	String portInfoCreateOn;
+	
 
 	public Port() {
 		super();
 	}
 
-	public Port(String portNumber, String portProtocol, String portStatus, String portSerive) {
+	public Port(String portNumber, String portProtocol, String portStatus, String portSerive,String hostname) {
 		super();
 		this.portNumber = portNumber;
 		this.portProtocol = portProtocol;
 		this.portStatus = portStatus;
 		this.portSerive = portSerive;
+		this.hostname = hostname;
+	}
+	
+	public Port(String portNumber, String portProtocol, String portStatus, String portSerive,String hostname, String portInfoCreateOn) {
+		super();
+		this.portNumber = portNumber;
+		this.portProtocol = portProtocol;
+		this.portStatus = portStatus;
+		this.portSerive = portSerive;
+		this.hostname = hostname;
+		this.portInfoCreateOn = portInfoCreateOn;
 	}
 
 	public Long getId() {
@@ -54,6 +68,14 @@ public class Port {
 		this.portProtocol = portProtocol;
 	}
 
+	public String getHostname() {
+		return hostname;
+	}
+
+	public void setHostname(String hostname) {
+		this.hostname = hostname;
+	}
+
 	public String getPortStatus() {
 		return portStatus;
 	}
@@ -69,11 +91,23 @@ public class Port {
 	public void setPortSerive(String portSerive) {
 		this.portSerive = portSerive;
 	}
+	
+	
+	public String getPortInfoCreateOn() {
+		return portInfoCreateOn;
+	}
+
+	public void setPortInfoCreateOn(String portInfoCreateOn) {
+		this.portInfoCreateOn = portInfoCreateOn;
+	}
 
 	@Override
 	public String toString() {
 		return "Port [portNumber=" + portNumber + ", portProtocol=" + portProtocol + ", portStatus=" + portStatus
-				+ ", portSerive=" + portSerive + "]";
+				+ ", portSerive=" + portSerive + ", hostname=" + hostname + ", createdOn=" + portInfoCreateOn +"]";
 	}
+	
+	
+
 
 }
