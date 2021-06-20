@@ -55,23 +55,33 @@ public class PortInfoOrganizer {
 		
 		//Calculate the differntial
 		//New ports Added
+		List<Port> latest  = finalOutPut.getLatestScannedPorts();
+		//latest.remove(1);
 		
 		if(finalOutPut.getHistoryScannedPort().size()>0) {
 			Set<Port> reference = new HashSet<Port>();
-			List<Port> latest = finalOutPut.getLatestScannedPorts();
+			latest = finalOutPut.getLatestScannedPorts();
 			latest.forEach(x->reference.add(x));
 			for (Port port : secondLatestbucket) {
 				if(!reference.contains(port)) {
 					deletedPorts.add(port);
 				}
 			}
+			
+			
 			Set<Port> reference2 = new HashSet<Port>();
-			secondLatestbucket.forEach(x->reference2.add(x));
-			for (Port port : latest) {
-				if(!reference2.contains(port)) {
-					newlyAddedPorts.add(port);
+			latest.forEach(x->reference2.add(x));
+			for (Port port : secondLatestbucket) {
+				if(reference2.contains(port)) {
+					reference2.remove(port);
 				}
 			}	
+			
+			if(reference2.size()>0) {
+				reference2.forEach(x->{
+					newlyAddedPorts.add(x);
+				});
+			}
 		}
 		
 		
