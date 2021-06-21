@@ -19,13 +19,13 @@ public class Port {
 	String portStatus;
 	String portSerive;
 	String portInfoCreateOn;
-	
+	Integer latest;
 
 	public Port() {
 		super();
 	}
 
-	public Port(String portNumber, String portProtocol, String portStatus, String portSerive,String hostname) {
+	public Port(String portNumber, String portProtocol, String portStatus, String portSerive, String hostname) {
 		super();
 		this.portNumber = portNumber;
 		this.portProtocol = portProtocol;
@@ -33,8 +33,9 @@ public class Port {
 		this.portSerive = portSerive;
 		this.hostname = hostname;
 	}
-	
-	public Port(String portNumber, String portProtocol, String portStatus, String portSerive,String hostname, String portInfoCreateOn) {
+
+	public Port(String portNumber, String portProtocol, String portStatus, String portSerive, String hostname,
+			String portInfoCreateOn) {
 		super();
 		this.portNumber = portNumber;
 		this.portProtocol = portProtocol;
@@ -42,6 +43,18 @@ public class Port {
 		this.portSerive = portSerive;
 		this.hostname = hostname;
 		this.portInfoCreateOn = portInfoCreateOn;
+	}
+
+	public Port(String portNumber, String portProtocol, String portStatus, String portSerive, String hostname,
+			String portInfoCreateOn, Integer latest) {
+		super();
+		this.hostname = hostname;
+		this.portNumber = portNumber;
+		this.portProtocol = portProtocol;
+		this.portStatus = portStatus;
+		this.portSerive = portSerive;
+		this.portInfoCreateOn = portInfoCreateOn;
+		this.latest = latest;
 	}
 
 	public Long getId() {
@@ -91,8 +104,7 @@ public class Port {
 	public void setPortSerive(String portSerive) {
 		this.portSerive = portSerive;
 	}
-	
-	
+
 	public String getPortInfoCreateOn() {
 		return portInfoCreateOn;
 	}
@@ -101,10 +113,19 @@ public class Port {
 		this.portInfoCreateOn = portInfoCreateOn;
 	}
 
+	public Integer getLatest() {
+		return latest;
+	}
+
+	public void setLatest(Integer latest) {
+		this.latest = latest;
+	}
+
 	@Override
 	public String toString() {
-		return "Port [portNumber=" + portNumber + ", portProtocol=" + portProtocol + ", portStatus=" + portStatus
-				+ ", portSerive=" + portSerive + ", hostname=" + hostname + ", createdOn=" + portInfoCreateOn +"]";
+		return "Port [hostname=" + hostname + ", id=" + id + ", portNumber=" + portNumber + ", portProtocol="
+				+ portProtocol + ", portStatus=" + portStatus + ", portSerive=" + portSerive + ", portInfoCreateOn="
+				+ portInfoCreateOn + ", latest=" + latest + "]";
 	}
 
 	@Override
@@ -131,10 +152,5 @@ public class Port {
 			return false;
 		return true;
 	}
-
-	
-	
-	
-
 
 }

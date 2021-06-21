@@ -11,10 +11,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.nmap.data.PortRepo;
+import com.nmap.data.PortThresholdRepo;
 import com.nmap.modal.Port;
+import com.nmap.modal.PortFetchThreshold;
 import com.nmap.modal.PortInformation;
 import com.nmap.service.PortService;
 import com.nmap.util.DateUtil;
@@ -34,22 +37,43 @@ public class PortServiceImpl implements PortService {
 	private PortRepo portRepository;
 	
 	@Autowired
+	private PortThresholdRepo portThresholdRepo;
+	
+	@Autowired
 	private DateUtil dateUtil;
 	
 	@Autowired
 	private PortInfoOrganizer portInfoOrganizer;
+	
+	@Value("${port.scan.history.threshold}")
+	private String threshold;
 
 	public PortInformation getOpenPortsByHostName(String hostName) {
 		return getAllThePortInformation(hostName);
 	}
 
 	private PortInformation getAllThePortInformation(String hostName) {
+		System.out.println(threshold);
 		
 		// Regex usage to figure out open ports from terminal output
 		Pattern r = Pattern.compile(NmapperConstant.PATTERN_FOR_PORT);
 		Process process = null;
 		List<Port> openPorts = new ArrayList<Port>();
 		StringBuffer stringBuffer = new StringBuffer();
+		
+		List<PortFetchThreshold> lastLatest = portThresholdRepo.findByHostname(hostName);
+		Integer latestIndex = 0;
+		if(lastLatest.size()>0 && lastLatest.get(0)!=null) {
+			latestIndex = lastLatest.get(0).getLatest()+1;
+			PortFetchThreshold out = lastLatest.get(0);
+			out.setLatest(out.getLatest()+1);
+			portThresholdRepo.save(out);
+		}else {
+			PortFetchThreshold t = new PortFetchThreshold();
+			t.setHostname(hostName);
+			t.setLatest(latestIndex);
+			portThresholdRepo.save(t);
+		}
 		
 		//Fetch date here to give one date time per request
 		String createdOn = dateUtil.getCurrentDateTimeInUTCStringFormat();
@@ -67,7 +91,7 @@ public class PortServiceImpl implements PortService {
 							tempOutput = clean(tempOutput);
 							// TODO: check if the size is three;
 							Port p = new Port(tempOutput[0].trim().split("/")[0],tempOutput[0].trim().split("/")[1], tempOutput[1].trim(), tempOutput[2].trim()
-									,hostName.toLowerCase(),createdOn);
+									,hostName.toLowerCase(),createdOn,latestIndex);
 							portRepository.save(p);
 							openPorts.add(p);
 				}
@@ -80,9 +104,12 @@ public class PortServiceImpl implements PortService {
 		
 		//We will write logic here to add extra information.
 		
+		if(latestIndex>3) {
+			latestIndex = (latestIndex- Integer.valueOf(threshold))+1;
+		}
 		
+		List<Port> listOfPorts = portRepository.findByHostnameAndLatestGreaterThanEqual(hostName,latestIndex);
 		
-		List<Port> listOfPorts = portRepository.findByHostname(hostName);
 		System.out.println("Before comparing");
 		listOfPorts.stream().forEach(x->{
 			System.out.println(x.getId()+"--"+x.getPortInfoCreateOn());
