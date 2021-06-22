@@ -13,7 +13,7 @@ import com.nmap.modal.PortInformation;
 @Component
 public class PortInfoOrganizer {
 
-	public PortInformation organizeThePortInfo(List<Port> raw) {
+	public PortInformation organizeThePortInfo(List<Port> ports) {
 
 		PortInformation finalOutPut = new PortInformation();
 		finalOutPut.setHostName("Unknown Host");
@@ -31,11 +31,10 @@ public class PortInfoOrganizer {
 		
 		List<Port> secondLatestbucket = new ArrayList<Port>();
 		boolean isSecondScanned=false;
-		if (raw.size() > 0) {
-			
-			finalOutPut.setHostName(raw.get(0).getHostname());
-			String currentBucket = raw.get(0).getPortInfoCreateOn();
-			for (Port port : raw) {
+		if (ports.size() > 0) {
+			finalOutPut.setHostName(ports.get(0).getHostname());
+			String currentBucket = ports.get(0).getPortInfoCreateOn();
+			for (Port port : ports) {
 				
 				if (!port.getPortInfoCreateOn().equals(currentBucket)) {
 					currentBucket = port.getPortInfoCreateOn();
@@ -59,34 +58,25 @@ public class PortInfoOrganizer {
 		//latest.remove(1);
 		
 		if(finalOutPut.getHistoryScannedPort().size()>0) {
-			Set<Port> reference = new HashSet<Port>();
 			latest = finalOutPut.getLatestScannedPorts();
-			latest.forEach(x->reference.add(x));
-			for (Port port : secondLatestbucket) {
-				if(!reference.contains(port)) {
-					deletedPorts.add(port);
+			Set<Port> reference = new HashSet<Port>();
+			if (latest.size() > secondLatestbucket.size()) {
+				secondLatestbucket.forEach(x->reference.add(x));
+				for (Port port : latest) {
+					if (!reference.contains(port)) {
+						deletedPorts.add(port);
+					}
 				}
-			}
-			
-			
-			Set<Port> reference2 = new HashSet<Port>();
-			latest.forEach(x->reference2.add(x));
-			for (Port port : secondLatestbucket) {
-				if(reference2.contains(port)) {
-					reference2.remove(port);
+			} else if (latest.size() < secondLatestbucket.size()) {
+				latest.forEach(x->reference.add(x));
+				for (Port port : secondLatestbucket) {
+					if (!reference.contains(port)) {
+						newlyAddedPorts.add(port);
+					}
 				}
-			}	
-			
-			if(reference2.size()>0) {
-				reference2.forEach(x->{
-					newlyAddedPorts.add(x);
-				});
 			}
 		}
-		
-		
 		return finalOutPut;
-
 	}
 
 }

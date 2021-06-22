@@ -12,6 +12,17 @@ public class PortFetchThreshold {
 
 	@Id
 	private String hostname;
+	public PortFetchThreshold(String hostname, Integer latest) {
+		super();
+		this.hostname = hostname;
+		this.latest = latest;
+	}
+
+	public PortFetchThreshold() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
 	private Integer latest;
 
 	public String getHostname() {

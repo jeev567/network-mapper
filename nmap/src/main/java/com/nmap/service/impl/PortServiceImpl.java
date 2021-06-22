@@ -56,23 +56,21 @@ public class PortServiceImpl implements PortService {
 		System.out.println(threshold);
 		
 		// Regex usage to figure out open ports from terminal output
-		Pattern r = Pattern.compile(NmapperConstant.PATTERN_FOR_PORT);
+		Pattern pattern = Pattern.compile(NmapperConstant.PATTERN_FOR_PORT);
 		Process process = null;
 		List<Port> openPorts = new ArrayList<Port>();
 		StringBuffer stringBuffer = new StringBuffer();
 		
-		List<PortFetchThreshold> lastLatest = portThresholdRepo.findByHostname(hostName);
+		List<PortFetchThreshold> portFetchThresholds = portThresholdRepo.findByHostname(hostName);
 		Integer latestIndex = 0;
-		if(lastLatest.size()>0 && lastLatest.get(0)!=null) {
-			latestIndex = lastLatest.get(0).getLatest()+1;
-			PortFetchThreshold out = lastLatest.get(0);
-			out.setLatest(out.getLatest()+1);
+		if(portFetchThresholds.size()>0 && portFetchThresholds.get(0)!=null) {
+			latestIndex = portFetchThresholds.get(0).getLatest()+1;
+			PortFetchThreshold out = portFetchThresholds.get(0);
+			out.setLatest(latestIndex);
 			portThresholdRepo.save(out);
 		}else {
-			PortFetchThreshold t = new PortFetchThreshold();
-			t.setHostname(hostName);
-			t.setLatest(latestIndex);
-			portThresholdRepo.save(t);
+			PortFetchThreshold portFetchThreshold = new PortFetchThreshold(hostName, latestIndex);
+			portThresholdRepo.save(portFetchThreshold);
 		}
 		
 		//Fetch date here to give one date time per request
@@ -86,14 +84,14 @@ public class PortServiceImpl implements PortService {
 			
 			while ((line = reader.readLine()) != null) {
 				stringBuffer.append(line + "\n");
-				if (r.matcher(line).find()) {
-							String[] tempOutput = stringBuffer.toString().split(" ");
-							tempOutput = clean(tempOutput);
-							// TODO: check if the size is three;
-							Port p = new Port(tempOutput[0].trim().split("/")[0],tempOutput[0].trim().split("/")[1], tempOutput[1].trim(), tempOutput[2].trim()
-									,hostName.toLowerCase(),createdOn,latestIndex);
-							portRepository.save(p);
-							openPorts.add(p);
+				if (pattern.matcher(line).find()) {
+					String[] tempOutput = stringBuffer.toString().split(" ");
+					tempOutput = clean(tempOutput);
+					// TODO: check if the size is three;
+					Port port = new Port(tempOutput[0].trim().split("/")[0],tempOutput[0].trim().split("/")[1], tempOutput[1].trim(), tempOutput[2].trim()
+							,hostName.toLowerCase(),createdOn,latestIndex);
+					portRepository.save(port);
+					openPorts.add(port);
 				}
 				stringBuffer = new StringBuffer();
 			}
@@ -104,9 +102,8 @@ public class PortServiceImpl implements PortService {
 		
 		//We will write logic here to add extra information.
 		
-		if(latestIndex>3) {
-			latestIndex = (latestIndex- Integer.valueOf(threshold))+1;
-		}
+		latestIndex = (latestIndex- Integer.valueOf(threshold))+1;
+		latestIndex = (latestIndex < 0) ? 0 : latestIndex; 
 		
 		List<Port> listOfPorts = portRepository.findByHostnameAndLatestGreaterThanEqual(hostName,latestIndex);
 		
@@ -114,11 +111,14 @@ public class PortServiceImpl implements PortService {
 		listOfPorts.stream().forEach(x->{
 			System.out.println(x.getId()+"--"+x.getPortInfoCreateOn());
 		});
+		
 		listOfPorts = listOfPorts.stream().sorted(getDateComparator()).collect(Collectors.toList());
+		
 		System.out.println("After comparing");
 		listOfPorts.stream().forEach(x->{
 			System.out.println(x.getId()+"--"+x.getPortInfoCreateOn());
 		});
+		
 		Collections.reverse(listOfPorts);
 		return portInfoOrganizer.organizeThePortInfo(listOfPorts);
 	//null	return new PortInformation(openPorts);
@@ -133,9 +133,6 @@ public class PortServiceImpl implements PortService {
 		Comparator<Port> comparatorByYMDHms = comparatorByYMDHm.thenComparing(new SortPortsBySecondComparator());
 		return comparatorByYMDHms;
 	}
-	
-	
-	
 	
 	private String[] clean(String[] tempOutput) {
 		StringBuilder sb = new StringBuilder();
