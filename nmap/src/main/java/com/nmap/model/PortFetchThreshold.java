@@ -1,4 +1,4 @@
-package com.nmap.modal;
+package com.nmap.model;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

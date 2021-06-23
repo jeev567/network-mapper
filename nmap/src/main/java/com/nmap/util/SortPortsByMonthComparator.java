@@ -2,7 +2,7 @@ package com.nmap.util;
 
 import java.util.Comparator;
 
-import com.nmap.modal.Port;
+import com.nmap.model.Port;
 
 public class SortPortsByMonthComparator implements Comparator<Port> {
 	@Override

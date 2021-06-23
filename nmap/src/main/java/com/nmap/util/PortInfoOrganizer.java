@@ -7,8 +7,8 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
-import com.nmap.modal.Port;
-import com.nmap.modal.PortInformation;
+import com.nmap.model.Port;
+import com.nmap.model.PortInformation;
 
 @Component
 public class PortInfoOrganizer {
@@ -18,15 +18,15 @@ public class PortInfoOrganizer {
 		PortInformation finalOutPut = new PortInformation();
 		finalOutPut.setHostName("Unknown Host");
 		
-		List<Port> bucket = new ArrayList<Port>();
-		List<List<Port>> historybucket = new ArrayList<List<Port>>();
+		List<Port> latestScannedPorts = new ArrayList<Port>();
+		List<List<Port>> historyScannedPort = new ArrayList<List<Port>>();
 		List<Port> newlyAddedPorts = new ArrayList<Port>();
 		List<Port> deletedPorts = new ArrayList<Port>();
 		
-		finalOutPut.setDeleteddPort(deletedPorts);
-		finalOutPut.setNewlyAddedPort(newlyAddedPorts);
-		finalOutPut.setLatestScannedPorts(bucket);
-		finalOutPut.setHistoryScannedPort(historybucket);
+		finalOutPut.setDeletedPorts(deletedPorts);
+		finalOutPut.setNewlyAddedPorts(newlyAddedPorts);
+		finalOutPut.setLatestScannedPorts(latestScannedPorts);
+		finalOutPut.setHistoryScannedPorts(historyScannedPort);
 		
 		
 		List<Port> secondLatestbucket = new ArrayList<Port>();
@@ -38,15 +38,15 @@ public class PortInfoOrganizer {
 				
 				if (!port.getPortInfoCreateOn().equals(currentBucket)) {
 					currentBucket = port.getPortInfoCreateOn();
-					bucket = new ArrayList<Port>();
+					latestScannedPorts = new ArrayList<Port>();
 					if(!isSecondScanned) {
 						isSecondScanned=true;
-						secondLatestbucket = bucket;
+						secondLatestbucket = latestScannedPorts;
 					}
-					historybucket.add(bucket);
-					bucket.add(port);
+					historyScannedPort.add(latestScannedPorts);
+					latestScannedPorts.add(port);
 				} else {
-					bucket.add(port);
+					latestScannedPorts.add(port);
 				}
 			}
 		}
@@ -57,7 +57,7 @@ public class PortInfoOrganizer {
 		List<Port> latest  = finalOutPut.getLatestScannedPorts();
 		//latest.remove(1);
 		
-		if(finalOutPut.getHistoryScannedPort().size()>0) {
+		if(finalOutPut.getHistoryScannedPorts().size()>0) {
 			latest = finalOutPut.getLatestScannedPorts();
 			Set<Port> reference = new HashSet<Port>();
 			if (latest.size() > secondLatestbucket.size()) {

@@ -16,9 +16,9 @@ import org.springframework.stereotype.Service;
 
 import com.nmap.data.PortRepo;
 import com.nmap.data.PortThresholdRepo;
-import com.nmap.modal.Port;
-import com.nmap.modal.PortFetchThreshold;
-import com.nmap.modal.PortInformation;
+import com.nmap.model.Port;
+import com.nmap.model.PortFetchThreshold;
+import com.nmap.model.PortInformation;
 import com.nmap.service.PortService;
 import com.nmap.util.DateUtil;
 import com.nmap.util.NmapperConstant;

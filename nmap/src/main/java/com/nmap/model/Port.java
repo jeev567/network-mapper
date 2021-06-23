@@ -1,4 +1,4 @@
-package com.nmap.modal;
+package com.nmap.model;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -23,26 +23,6 @@ public class Port {
 
 	public Port() {
 		super();
-	}
-
-	public Port(String portNumber, String portProtocol, String portStatus, String portSerive, String hostname) {
-		super();
-		this.portNumber = portNumber;
-		this.portProtocol = portProtocol;
-		this.portStatus = portStatus;
-		this.portSerive = portSerive;
-		this.hostname = hostname;
-	}
-
-	public Port(String portNumber, String portProtocol, String portStatus, String portSerive, String hostname,
-			String portInfoCreateOn) {
-		super();
-		this.portNumber = portNumber;
-		this.portProtocol = portProtocol;
-		this.portStatus = portStatus;
-		this.portSerive = portSerive;
-		this.hostname = hostname;
-		this.portInfoCreateOn = portInfoCreateOn;
 	}
 
 	public Port(String portNumber, String portProtocol, String portStatus, String portSerive, String hostname,

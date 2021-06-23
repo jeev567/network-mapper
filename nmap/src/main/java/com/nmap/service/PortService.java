@@ -2,7 +2,7 @@ package com.nmap.service;
 
 import org.springframework.stereotype.Service;
 
-import com.nmap.modal.PortInformation;
+import com.nmap.model.PortInformation;
 
 
 public interface PortService {
