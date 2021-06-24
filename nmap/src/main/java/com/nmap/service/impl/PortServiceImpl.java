@@ -3,7 +3,6 @@ package com.nmap.service.impl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -28,7 +27,7 @@ public class PortServiceImpl implements PortService {
 	private PortRepo portRepository;
 	
 	@Autowired
-	private PortFetchLatestScanRepo portThresholdRepo;
+	private PortFetchLatestScanRepo portFetchLatestScanRepo;
 	
 	@Autowired
 	private PortInfoOrganizer portInfoOrganizer;
@@ -41,63 +40,66 @@ public class PortServiceImpl implements PortService {
 	}
 
 	private PortInformation getAllThePortInformation(String hostName) {
-		System.out.println(threshold);
-		
-		// Regex usage to figure out open ports from terminal output
-		Pattern pattern = Pattern.compile(NmapperConstant.PATTERN_FOR_PORT);
-		Process process = null;
-		List<Port> openPorts = new ArrayList<Port>();
-		StringBuffer stringBuffer = new StringBuffer();
-		
-		List<PortFetchLatestScan> portFetchThresholds = portThresholdRepo.findByHostname(hostName);
+		// fetch latest scanId by hostname
+		List<PortFetchLatestScan> portFetchLatestScanList = portFetchLatestScanRepo.findByHostname(hostName);
 		Integer latestIndex = 0;
-		if(portFetchThresholds.size()>0 && portFetchThresholds.get(0)!=null) {
-			latestIndex = portFetchThresholds.get(0).getLatestScanId()+1;
-			PortFetchLatestScan out = portFetchThresholds.get(0);
-			out.setLatestScanId(latestIndex);
-			portThresholdRepo.save(out);
-		}else {
-			PortFetchLatestScan portFetchThreshold = new PortFetchLatestScan(hostName, latestIndex);
-			portThresholdRepo.save(portFetchThreshold);
+		if(portFetchLatestScanList.size()>0 && portFetchLatestScanList.get(0)!=null) {
+			latestIndex = portFetchLatestScanList.get(0).getLatestScanId()+1;
 		}
 		
+		runNMapCommandAndSave(hostName, latestIndex);
+		updateLatestScanId(hostName,portFetchLatestScanList, latestIndex);
+		
+		latestIndex = (latestIndex- Integer.valueOf(threshold))+1;
+		latestIndex = (latestIndex < 0) ? 0 : latestIndex; 
+		List<Port> listOfPorts = portRepository.findByHostnameAndScanIdGreaterThanEqual(hostName,latestIndex);		
+		Collections.reverse(listOfPorts);
+
+		listOfPorts.stream().forEach(port->{
+			System.out.println(port.getId()+" -- "+ port.getHostname()+ " -- " +port.getScanId());
+		});
+		return portInfoOrganizer.organizeThePortInfo(listOfPorts);
+	}
+	
+	private void updateLatestScanId(String hostName, List<PortFetchLatestScan> portFetchLatestScanList, Integer latestIndex) {
+		if(portFetchLatestScanList.size()>0 && portFetchLatestScanList.get(0)!=null) {
+			latestIndex = portFetchLatestScanList.get(0).getLatestScanId()+1;
+			PortFetchLatestScan portFetchLatestScan = portFetchLatestScanList.get(0);
+			portFetchLatestScan.setLatestScanId(latestIndex);
+			portFetchLatestScanRepo.save(portFetchLatestScan);
+		}else {
+			PortFetchLatestScan portFetchThreshold = new PortFetchLatestScan(hostName, latestIndex);
+			portFetchLatestScanRepo.save(portFetchThreshold);
+		}
+	}
+	
+	private void runNMapCommandAndSave(String hostName, Integer latestIndex) {
 		try {
-			process = Runtime.getRuntime().exec(NmapperConstant.GET_OPEN_PORT_COMMAND + " " + hostName);
+			
+			// Runs NMAP Command
+			Process process = Runtime.getRuntime().exec(NmapperConstant.GET_OPEN_PORT_COMMAND + " " + hostName);
 			System.out.println("Please wait ...");
 			BufferedReader reader = new BufferedReader(
 					new InputStreamReader(process.getInputStream(), NmapperConstant.UTF8.toString()));
 			String line = null;
+			StringBuffer stringBuffer = new StringBuffer();
+			Pattern pattern = Pattern.compile(NmapperConstant.PATTERN_FOR_PORT);
 			
+			// Parses the data from NMAP and saves them in portRepository
 			while ((line = reader.readLine()) != null) {
 				stringBuffer.append(line + "\n");
 				if (pattern.matcher(line).find()) {
 					String[] tempOutput = stringBuffer.toString().split(" ");
 					tempOutput = clean(tempOutput);
-					// TODO: check if the size is three;
 					Port port = new Port(tempOutput[0].trim().split("/")[0],tempOutput[0].trim().split("/")[1], tempOutput[1].trim(), tempOutput[2].trim()
 							,hostName.toLowerCase(),latestIndex);
 					portRepository.save(port);
-					openPorts.add(port);
 				}
 				stringBuffer = new StringBuffer();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		
-		//We will write logic here to add extra information.
-		
-		latestIndex = (latestIndex- Integer.valueOf(threshold))+1;
-		latestIndex = (latestIndex < 0) ? 0 : latestIndex; 
-		
-		List<Port> listOfPorts = portRepository.findByHostnameAndScanIdGreaterThanEqual(hostName,latestIndex);
-		
-		Collections.reverse(listOfPorts);
-		listOfPorts.stream().forEach(x->{
-			System.out.println(x.getId()+"--"+x.getScanId());
-		});
-		return portInfoOrganizer.organizeThePortInfo(listOfPorts);
 	}
 
 	private String[] clean(String[] tempOutput) {
