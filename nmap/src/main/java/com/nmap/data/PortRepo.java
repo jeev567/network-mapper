@@ -10,6 +10,6 @@ import com.nmap.model.Port;
 @Repository
 public interface PortRepo extends JpaRepository<Port,Long> {
 	List<Port> findByHostname(String hostName);
-	List<Port> findByHostnameAndLatestGreaterThanEqual(String hostName,Integer threshold);
+	List<Port> findByHostnameAndScanIdGreaterThanEqual(String hostName,Integer threshold);
 
 }

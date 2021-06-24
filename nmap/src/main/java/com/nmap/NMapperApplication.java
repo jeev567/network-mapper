@@ -9,5 +9,4 @@ public class NMapperApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(NMapperApplication.class, args);
 	}
-
 }

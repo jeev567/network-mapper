@@ -17,24 +17,21 @@ public class Port {
 	String portNumber;
 	String portProtocol;
 	String portStatus;
-	String portSerive;
-	String portInfoCreateOn;
-	Integer latest;
+	String portService;
+	Integer scanId;
 
 	public Port() {
 		super();
 	}
 
-	public Port(String portNumber, String portProtocol, String portStatus, String portSerive, String hostname,
-			String portInfoCreateOn, Integer latest) {
+	public Port(String portNumber, String portProtocol, String portStatus, String portSerive, String hostname, Integer scanId) {
 		super();
 		this.hostname = hostname;
 		this.portNumber = portNumber;
 		this.portProtocol = portProtocol;
 		this.portStatus = portStatus;
-		this.portSerive = portSerive;
-		this.portInfoCreateOn = portInfoCreateOn;
-		this.latest = latest;
+		this.portService = portSerive;
+		this.scanId = scanId;
 	}
 
 	public Long getId() {
@@ -78,34 +75,25 @@ public class Port {
 	}
 
 	public String getPortSerive() {
-		return portSerive;
+		return portService;
 	}
 
 	public void setPortSerive(String portSerive) {
-		this.portSerive = portSerive;
+		this.portService = portSerive;
 	}
 
-	public String getPortInfoCreateOn() {
-		return portInfoCreateOn;
+	public Integer getScanId() {
+		return scanId;
 	}
 
-	public void setPortInfoCreateOn(String portInfoCreateOn) {
-		this.portInfoCreateOn = portInfoCreateOn;
-	}
-
-	public Integer getLatest() {
-		return latest;
-	}
-
-	public void setLatest(Integer latest) {
-		this.latest = latest;
+	public void setScanId(Integer scanId) {
+		this.scanId = scanId;
 	}
 
 	@Override
 	public String toString() {
 		return "Port [hostname=" + hostname + ", id=" + id + ", portNumber=" + portNumber + ", portProtocol="
-				+ portProtocol + ", portStatus=" + portStatus + ", portSerive=" + portSerive + ", portInfoCreateOn="
-				+ portInfoCreateOn + ", latest=" + latest + "]";
+				+ portProtocol + ", portStatus=" + portStatus + ", portSerive=" + portService + ", scanId=" + scanId + "]";
 	}
 
 	@Override

@@ -11,7 +11,4 @@ public interface NmapperConstant {
 	//NMAP CLI command
 	String GET_OPEN_PORT_COMMAND = "nmap";
 	
-	//DATE UTIL CONSTANTS
-	String DATE_TIME_FORMAT_FOR_SORTING = "yyyy-MM-dd-HH-mm-ss";
-	
 }

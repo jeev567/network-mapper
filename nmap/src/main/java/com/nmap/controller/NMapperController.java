@@ -10,7 +10,7 @@ import com.nmap.model.PortInformation;
 import com.nmap.service.PortService;
 
 @RestController
-public class PortController {
+public class NMapperController {
 
 	
 	@Autowired
