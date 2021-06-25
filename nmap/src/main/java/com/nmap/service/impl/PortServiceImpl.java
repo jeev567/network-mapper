@@ -3,6 +3,7 @@ package com.nmap.service.impl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -41,23 +42,34 @@ public class PortServiceImpl implements PortService {
 
 	private PortInformation getAllThePortInformation(String hostName) {
 		// fetch latest scanId by hostname
-		List<PortFetchLatestScan> portFetchLatestScanList = portFetchLatestScanRepo.findByHostname(hostName);
-		Integer latestIndex = 0;
-		if(portFetchLatestScanList.size()>0 && portFetchLatestScanList.get(0)!=null) {
-			latestIndex = portFetchLatestScanList.get(0).getLatestScanId()+1;
-		}
-		
-		runNMapCommandAndSave(hostName, latestIndex);
-		updateLatestScanId(hostName,portFetchLatestScanList, latestIndex);
-		
-		latestIndex = (latestIndex- Integer.valueOf(threshold))+1;
-		latestIndex = (latestIndex < 0) ? 0 : latestIndex; 
-		List<Port> listOfPorts = portRepository.findByHostnameAndScanIdGreaterThanEqual(hostName,latestIndex);		
-		Collections.reverse(listOfPorts);
+		List<Port> listOfPorts = new ArrayList<>();
+		try {
+			// Runs NMAP Command
+			System.out.println("Please wait ...");
+			Process process = Runtime.getRuntime().exec(NmapperConstant.GET_OPEN_PORT_COMMAND + " " + hostName);
+			List<PortFetchLatestScan> portFetchLatestScanList = portFetchLatestScanRepo.findByHostname(hostName);
+			Integer latestScanId = 0;
+			if(portFetchLatestScanList.size()>0 && portFetchLatestScanList.get(0)!=null) {
+				latestScanId = portFetchLatestScanList.get(0).getLatestScanId()+1;
+			}
+			
+			parsaDataAndSave(hostName, latestScanId, process);
+			
+			updateLatestScanId(hostName,portFetchLatestScanList, latestScanId);
+			
+			latestScanId = (latestScanId- Integer.valueOf(threshold))+1;
+			latestScanId = (latestScanId < 0) ? 0 : latestScanId; 
+			
+			listOfPorts = portRepository.findByHostnameAndScanIdGreaterThanEqual(hostName,latestScanId);		
+			
+			Collections.reverse(listOfPorts);
 
-		listOfPorts.stream().forEach(port->{
-			System.out.println(port.getId()+" -- "+ port.getHostname()+ " -- " +port.getScanId());
-		});
+			listOfPorts.stream().forEach(port->{
+				System.out.println(port.getId()+" -- "+ port.getHostname()+ " -- " +port.getScanId());
+			});
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 		return portInfoOrganizer.organizeThePortInfo(listOfPorts);
 	}
 	
@@ -73,12 +85,8 @@ public class PortServiceImpl implements PortService {
 		}
 	}
 	
-	private void runNMapCommandAndSave(String hostName, Integer latestIndex) {
+	private void parsaDataAndSave(String hostName, Integer latestIndex, Process process) {
 		try {
-			
-			// Runs NMAP Command
-			Process process = Runtime.getRuntime().exec(NmapperConstant.GET_OPEN_PORT_COMMAND + " " + hostName);
-			System.out.println("Please wait ...");
 			BufferedReader reader = new BufferedReader(
 					new InputStreamReader(process.getInputStream(), NmapperConstant.UTF8.toString()));
 			String line = null;

@@ -28,7 +28,7 @@ public class PortInfoOrganizer {
 		portInformation.setLatestScannedPorts(latestScannedPorts);
 		portInformation.setHistoryScannedPorts(historyScannedPort);
 		
-		
+		// Adds latest scanned ports and history ports
 		List<Port> secondLatestScan = new ArrayList<Port>();
 		boolean isSecondScanned=false;
 		if (ports.size() > 0) {
@@ -50,8 +50,7 @@ public class PortInfoOrganizer {
 			}
 		}
 		
-		
-		//New ports Added
+		// Adds newly added ports and deleted ports 
 		List<Port> latestScanPorts;
 		if(portInformation.getHistoryScannedPorts().size() > 0) {
 			latestScanPorts = portInformation.getLatestScannedPorts();
@@ -74,5 +73,4 @@ public class PortInfoOrganizer {
 		}
 		return portInformation;
 	}
-
 }
